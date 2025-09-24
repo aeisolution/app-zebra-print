@@ -1,1 +1,120 @@
-Sample page
+<!doctype html>
+<html ng-app="app">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Goodwill</title>
+
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- Bootstrap 3.3.5 -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/skins/skin-blue.min.css">
+
+  <link rel="stylesheet" href="css/angular-toastr.min.css">
+
+  <!-- iCheck -->
+  <link rel="stylesheet" href="plugins/iCheck/square/blue.css">
+
+  <!-- Bootstrap datepicker -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css">
+
+  <!-- Full Calendar -->
+   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.9.1/fullcalendar.min.css">
+   
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body class="skin-blue hold-transition" ng-class="{' sidebar-collapse': true}">
+
+  <div ui-view></div>
+
+
+  <!-- jQuery 2.1.4 -->
+  <script src="plugins/jQuery/jQuery-2.1.4.min.js"></script>
+  <!-- Bootstrap 3.3.5 -->
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <!-- Plugins -->
+  <script src="plugins/iCheck/icheck.min.js"></script>
+
+  <!-- Morris.js charts -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+  <script src="/plugins/morris/morris.min.js"></script>
+
+  <!-- AngularJS -->
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-messages.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-animate.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-sanitize.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.18/angular-ui-router.min.js"></script>
+
+  <!-- locale IT -->
+  <script src="i18n/angular-locale_it-it.js"></script>
+
+
+  <!-- Bootstrap datepicker -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
+
+  <!--
+  <script src="js/angular-ui-bootstrap-bower/ui-bootstrap.min.js"></script>
+	<script src="js/angular-ui-bootstrap-bower/ui-bootstrap-tpls.min.js"></script>
+  -->
+  <script src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+	<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+
+	<script src="js/angular-toastr/dist/angular-toastr.tpls.min.js"></script>
+
+  <!-- charts js -->
+  <script src="bower_components/chart.js/dist/Chart.js"></script>
+  <script src="js/angular-chart/angular-chart.js"></script>
+  <!-- angular-moment -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular-moment/1.2.0/angular-moment.min.js"></script>
+  <!-- ng-csv -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/ng-csv/0.3.6/ng-csv.min.js"></script>
+  <!-- Excel Export -->
+  <script src="bower_components/js-xlsx/dist/xlsx.full.min.js"></script>
+  <script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.min.js"></script>
+
+  <!-- Zebra Browser Printer -->
+  <script src="js/BrowserPrint-2.0.0.75.min.js"></script>
+
+  <!-- app -->
+  <script src="app/app.js"></script>
+  <script src="app/config.js"></script>
+  <script src="app/config.route.js"></script>
+
+  <!-- common -->
+	<script src="app/layout/shell.js"></script>
+
+	<!-- services -->
+	<script src="app/common/logger.js"></script>
+	<script src="app/common/modalConfirm.js"></script>
+
+
+	<!-- directives -->
+  <script src="app/directives/currencyinput.js"></script>
+  <script src="app/directives/dateinputdir.js"></script>
+  <script src="app/directives/datemodel.js"></script>
+  <script src="app/directives/filemodel.js"></script>
+  <script src="app/directives/formatdate.js"></script>
+  <script src="app/directives/inputrestrictions.js"></script>
+  
+
+  <!-- Controllers -->
+  <script src="app/etichette/etichetteCtrl.js"></script>
+
+
+
+</body>
+</html>

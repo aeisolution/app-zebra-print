@@ -1,0 +1,34 @@
+<div class="login-box">
+  <div class="login-logo">
+    <a href="#/">Good<b>will</b> </a>
+  </div><!-- /.login-logo -->
+  <div class="login-box-body">
+    <h3 style="margin:0px 0px 10px 0px;text-align: center;">
+      <div class="label label-info" style="display: block;">CRM</div>
+    </h3>
+    <p class="login-box-msg">Inserire Credenziali di Accesso</p>
+    <form name="loginForm" role="form">
+      <div class="form-group has-feedback" ng-class="{'has-error': loginForm.username.$dirty && loginForm.username.$invalid }">
+        <input type="text" name="username" ng-model="vm.user.username" class="form-control" placeholder="Username">
+        <span class="glyphicon glyphicon-user form-control-feedback"></span>
+      </div>
+      <div class="form-group has-feedback" ng-class="{'has-error': loginForm.password.$dirty && loginForm.password.$invalid }">
+        <input type="password" name="password" ng-model="vm.user.password" class="form-control" placeholder="Password">
+        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+      </div>
+      <div class="form-group has-feedback" style="margin-bottom: 15px;">
+        <select name="role" ng-model="vm.user.role" class="form-control select2" style="width: 100%;">
+          <option value="">--- Role ---</option>
+          <option value="admin">Amministratore</option>          
+          <option value="operatore" selected="selected">Operatore</option>
+        </select>        
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <button ng-disabled="loginForm.$pristine || loginForm.$invalid" ng-click="vm.login()" class="btn btn-primary btn-block btn-flat">Accedi</button>
+        </div><!-- /.col -->
+      </div>
+    </form>
+  </div><!-- /.login-box-body -->
+</div><!-- /.login-box -->
+
