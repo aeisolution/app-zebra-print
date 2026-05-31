@@ -1,0 +1,242 @@
+<!doctype html>
+<html ng-app="appProvette">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Etichette Provette - Test stampa</title>
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/angular-toastr.min.css">
+
+	<style>
+		body { padding: 16px; background: #f4f6f9; }
+		.panel-config .form-group { margin-bottom: 8px; }
+		.field-grid { display: grid; grid-template-columns: 1fr 70px 70px 70px 70px 60px; gap: 6px; align-items: center; }
+		.field-grid > div { font-size: 12px; }
+		.field-grid label { font-weight: 600; font-size: 12px; margin: 0; }
+		.zpl-preview { font-family: monospace; font-size: 11px; white-space: pre-wrap; word-break: break-all; background: #2b303b; color: #c0c5ce; padding: 10px; border-radius: 4px; max-height: 240px; overflow: auto; }
+		.label-canvas { border: 1px dashed #888; background: #fff; position: relative; box-sizing: content-box; }
+		.label-canvas .lbl-bar  { position: absolute; background: #000; }
+		.label-canvas .lbl-text { position: absolute; white-space: nowrap; }
+	</style>
+</head>
+<body ng-controller="provetteCtrl as vm">
+
+<div class="container-fluid">
+	<h2><i class="fa fa-tags"></i> Etichette Provette - Test stampa
+		<small>Zebra ZD421 · {{ vm.cfg.labelWmm }} × {{ vm.cfg.labelHmm }} mm</small>
+	</h2>
+
+	<div class="row">
+		<!-- Form dati provetta -->
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading"><b>Dati provetta</b></div>
+				<div class="panel-body">
+					<form role="form" novalidate>
+						<div class="form-group">
+							<label>Codice accettazione</label>
+							<input type="text" ng-model="vm.dati.codice" ng-change="vm.generaZpl()" class="form-control" placeholder="es. 2026/A0042">
+						</div>
+						<div class="form-group">
+							<label>Cognome proprietario</label>
+							<input type="text" ng-model="vm.dati.cognome" ng-change="vm.generaZpl()" class="form-control" placeholder="es. Rossi">
+						</div>
+						<div class="row">
+							<div class="form-group col-md-6">
+								<label>Specie</label>
+								<input type="text" ng-model="vm.dati.specie" ng-change="vm.generaZpl()" class="form-control" placeholder="es. Cavallo">
+							</div>
+							<div class="form-group col-md-6">
+								<label>Nome animale</label>
+								<input type="text" ng-model="vm.dati.nome" ng-change="vm.generaZpl()" class="form-control" placeholder="es. Furia">
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Tipologia campione</label>
+							<select ng-model="vm.dati.tipologia" ng-change="vm.generaZpl()" class="form-control">
+								<option value="">-- seleziona --</option>
+								<option ng-repeat="t in vm.tipologie" value="{{ t }}">{{ t }}</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Data accettazione</label>
+							<input type="text" ng-model="vm.dati.data" ng-change="vm.generaZpl()" class="form-control" placeholder="gg/mm/aaaa" maxlength="10">
+						</div>
+
+						<hr>
+						<div class="form-group">
+							<label>Stampante</label>
+							<select ng-model="vm.selected_device" ng-options="d as d.name for d in vm.devices" class="form-control"></select>
+						</div>
+						<div class="form-group">
+							<label>Numero copie</label>
+							<input type="number" min="1" max="20" ng-model="vm.cfg.copie" ng-change="vm.generaZpl()" class="form-control" style="width:100px">
+						</div>
+
+						<button type="button" class="btn btn-primary btn-lg" ng-click="vm.stampa()" ng-disabled="!vm.dati.codice || !vm.selected_device">
+							<i class="fa fa-print"></i> Stampa etichetta
+						</button>
+						<button type="button" class="btn btn-default" ng-click="vm.generaZpl()">
+							<i class="fa fa-refresh"></i> Aggiorna anteprima
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- Anteprima ZPL -->
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading"><b>Anteprima ZPL</b> <small class="text-muted">(inviato alla Zebra)</small></div>
+				<div class="panel-body">
+					<div class="zpl-preview">{{ vm.zplPreview }}</div>
+				</div>
+			</div>
+			<div class="alert alert-info">
+				<i class="fa fa-info-circle"></i> Per il rendering visivo dell'etichetta è possibile copiare il codice ZPL e incollarlo in
+				<a href="https://labelary.com/viewer.html" target="_blank">labelary.com/viewer.html</a> con dimensioni <b>{{ vm.cfg.labelWmm/25.4 | number:2 }}" × {{ vm.cfg.labelHmm/25.4 | number:2 }}"</b>.
+			</div>
+		</div>
+	</div>
+
+	<!-- Configurazione layout -->
+	<div class="panel panel-default panel-config">
+		<div class="panel-heading">
+			<a data-toggle="collapse" href="#configBox"><i class="fa fa-cog"></i> <b>Configurazione layout etichetta</b> (clic per espandere)</a>
+			<button type="button" class="btn btn-default btn-xs pull-right" ng-click="vm.resetDefault()"><i class="fa fa-undo"></i> Reset default</button>
+		</div>
+		<div class="collapse" id="configBox">
+			<div class="panel-body">
+				<!-- Dimensioni etichetta -->
+				<div class="row">
+					<div class="form-group col-md-2">
+						<label>Larghezza (mm)</label>
+						<input type="number" ng-model="vm.cfg.labelWmm" ng-change="vm.generaZpl()" class="form-control">
+					</div>
+					<div class="form-group col-md-2">
+						<label>Altezza (mm)</label>
+						<input type="number" ng-model="vm.cfg.labelHmm" ng-change="vm.generaZpl()" class="form-control">
+					</div>
+					<div class="form-group col-md-2">
+						<label>Dot/mm</label>
+						<select ng-model="vm.cfg.dpmm" ng-change="vm.generaZpl()" class="form-control">
+							<option ng-value="8">8 (203 dpi)</option>
+							<option ng-value="12">12 (300 dpi)</option>
+							<option ng-value="24">24 (600 dpi)</option>
+						</select>
+					</div>
+					<div class="form-group col-md-2">
+						<label>Darkness (0-30)</label>
+						<input type="number" min="0" max="30" ng-model="vm.cfg.darkness" ng-change="vm.generaZpl()" class="form-control">
+					</div>
+					<div class="form-group col-md-4">
+						<label>Dot calcolati</label>
+						<p class="form-control-static"><b>{{ vm.labelW }} × {{ vm.labelH }}</b> dot</p>
+					</div>
+				</div>
+
+				<hr>
+
+				<!-- Barcode -->
+				<h5><b>Barcode (codice accettazione)</b></h5>
+				<div class="row">
+					<div class="form-group col-md-2">
+						<label>Tipo</label>
+						<select ng-model="vm.cfg.barcode.type" ng-change="vm.generaZpl()" class="form-control">
+							<option value="C">Code 128 (C)</option>
+							<option value="3">Code 39 (3)</option>
+							<option value="2">Interleaved 2of5 (2)</option>
+						</select>
+					</div>
+					<div class="form-group col-md-1"><label>X</label><input type="number" ng-model="vm.cfg.barcode.x" ng-change="vm.generaZpl()" class="form-control"></div>
+					<div class="form-group col-md-1"><label>Y</label><input type="number" ng-model="vm.cfg.barcode.y" ng-change="vm.generaZpl()" class="form-control"></div>
+					<div class="form-group col-md-2"><label>Largh. modulo</label><input type="number" min="1" max="10" ng-model="vm.cfg.barcode.moduleWidth" ng-change="vm.generaZpl()" class="form-control"></div>
+					<div class="form-group col-md-2"><label>Altezza (dot)</label><input type="number" ng-model="vm.cfg.barcode.height" ng-change="vm.generaZpl()" class="form-control"></div>
+					<div class="form-group col-md-2">
+						<label>&nbsp;</label>
+						<div class="checkbox"><label><input type="checkbox" ng-model="vm.cfg.barcode.humanReadable" ng-change="vm.generaZpl()"> Testo sotto barcode</label></div>
+					</div>
+				</div>
+
+				<hr>
+
+				<!-- Campi testo -->
+				<h5><b>Righe di testo</b> <small class="text-muted">posizione (X,Y) in dot — font H×W in dot</small></h5>
+
+				<div class="field-grid" style="font-weight:600; margin-bottom:6px;">
+					<div>Riga</div><div>X</div><div>Y</div><div>Font H</div><div>Font W</div><div>Mostra</div>
+				</div>
+
+				<div class="field-grid">
+					<div>Codice (testo)</div>
+					<div><input type="number" ng-model="vm.cfg.testoCodice.x" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.testoCodice.y" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.testoCodice.fontH" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.testoCodice.fontW" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="checkbox" ng-model="vm.cfg.testoCodice.mostra" ng-change="vm.generaZpl()"></div>
+				</div>
+				<div class="field-grid">
+					<div>Cognome</div>
+					<div><input type="number" ng-model="vm.cfg.cognome.x" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.cognome.y" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.cognome.fontH" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.cognome.fontW" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="checkbox" ng-model="vm.cfg.cognome.mostra" ng-change="vm.generaZpl()"></div>
+				</div>
+				<div class="field-grid">
+					<div>Specie - Nome animale</div>
+					<div><input type="number" ng-model="vm.cfg.specieNome.x" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.specieNome.y" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.specieNome.fontH" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.specieNome.fontW" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="checkbox" ng-model="vm.cfg.specieNome.mostra" ng-change="vm.generaZpl()"></div>
+				</div>
+				<div class="field-grid">
+					<div>Tipologia campione</div>
+					<div><input type="number" ng-model="vm.cfg.tipologia.x" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.tipologia.y" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.tipologia.fontH" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.tipologia.fontW" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="checkbox" ng-model="vm.cfg.tipologia.mostra" ng-change="vm.generaZpl()"></div>
+				</div>
+				<div class="field-grid">
+					<div>Data accettazione</div>
+					<div><input type="number" ng-model="vm.cfg.data.x" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.data.y" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.data.fontH" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="number" ng-model="vm.cfg.data.fontW" ng-change="vm.generaZpl()" class="form-control input-sm"></div>
+					<div><input type="checkbox" ng-model="vm.cfg.data.mostra" ng-change="vm.generaZpl()"></div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<!-- jQuery + Bootstrap (per il collapse) -->
+<script src="plugins/jQuery/jQuery-2.1.4.min.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
+
+<!-- AngularJS -->
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-animate.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-sanitize.min.js"></script>
+
+<!-- locale IT -->
+<script src="i18n/angular-locale_it-it.js"></script>
+
+<!-- Toastr -->
+<script src="js/angular-toastr/dist/angular-toastr.tpls.min.js"></script>
+
+<!-- Zebra Browser Print -->
+<script src="js/BrowserPrint-2.0.0.75.min.js"></script>
+
+<!-- App -->
+<script src="app/provette/provetteCtrl.js"></script>
+
+</body>
+</html>
